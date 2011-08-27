@@ -1,0 +1,108 @@
+{% extends "main.html" %}
+{% load thumbnail %}
+
+
+{% block title %}
+	Manage sports
+{% endblock %}
+
+{% block javascript %}
+	<script type="text/javascript" src="{{MEDIA_URL}}js/timepicker.js"></script>
+{% endblock %}
+
+{% block content %}
+<span class="sectionName">Manage {{sport.name}}</span>
+<hr/>
+<br/>
+<form method="POST" action=".">
+{% csrf_token %}
+<table>
+{{form.as_table}}
+</table>
+<input type="submit" value="update"/>
+</form>
+<br/>
+<span class="sectionName">Participants (total {{participants|length}})</span>
+<hr/>
+<br/>
+<form method="POST" action="{% url sports.views.update_prescore party.slug sport.slug %}">
+{% csrf_token %}
+<table>
+	<thead>
+		<th>Prescore</th>
+		<th width="250">Name</th>
+		{% if sport.show_comment %}
+		<th width="300">Comment</th>
+		{% endif %}
+		{% if sport.show_file %}
+		<th width="250">Thumbnail</th>
+		{% endif %}
+	</thead>
+	<tbody>
+		{% for participant in participants %}
+		<tr class="{% cycle "odd" "even" %}">
+			<td><input type="text" name="prescore_{{participant.id}}" value="{{participant.pre_score}}"/></td>
+			<td><a href="{% url accounts.views.admin_user_details participant.user.id %}">{{participant.name}} ({{participant.real_name}})</a></td>
+			{% if sport.show_comment %}
+				<td>{{participant.comment}}</td>
+			{% endif %}
+			{% if sport.show_file %}
+				<td align="center">{% thumbnail participant.data "640x480" as big %}<a href="{{big.url}}">{% endthumbnail %}{% thumbnail participant.data "240x180" as im %}<img width="{{im.width}}" height="{{im.height}}" src="{{im.url}}" style="margin:{{im|margin:"240x180"}}"/>{% empty %}<img width="120" height="90" src="{{MEDIA_URL}}images/no_screenshot.jpg"/>{% endthumbnail %}</a></td>
+			{% endif %}
+		</tr>
+		{% endfor %}
+	</tbody>
+</table>
+<input type="submit" value="update Prescore"/>
+</form>
+<br/>
+<span class="sectionName">Seeding</span>
+<hr/>
+<br/>
+<br/>
+<form method="POST" action="{% url sports.views.seed party.slug sport.slug %}">
+{% csrf_token %}
+<table>
+	{{seedform.as_table}}
+	<tr><td></td><td><input type="submit" value="SEED!"/></td></tr>
+</table>
+</form>
+
+{% if seed %}
+<br/>
+<table>
+	<thead>
+		<tr>
+			<th>#</th>
+			<th width="250">Name</th>
+			{% if sport.show_comment %}
+				<th width="300">Comment</th>
+			{% endif %}
+		</tr>
+	</thead>
+	<tbody>
+		{% for seeded in seed.participants.all %}
+			<tr class="{% cycle "odd" "even" %}">
+				<td>{{forloop.counter}}</td>
+				<td>{{seeded.name}} ({{seeded.real_name}})</td>
+				{% if sport.show_comment %}
+					<td>{{seeded.comment}}</td>
+				{% endif %}
+			</tr>
+		{% endfor %}
+	</tbody>
+</table>
+{% endif %}
+
+
+{% endblock %}
+
+{% block script %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('.datetime').datetimepicker({
+				dateFormat : 'yy-mm-dd',showOn: 'button', buttonImage: '{{MEDIA_URL}}images/calendar.gif', buttonImageOnly: true,
+			});
+		});
+	</script>
+{% endblock %}

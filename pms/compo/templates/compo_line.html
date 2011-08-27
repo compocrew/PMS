@@ -1,0 +1,49 @@
+{% load timetags %}
+{% load compo_tags %}
+
+<tr class="compo">
+	<td>{% if compo.rules %}<a href="{{compo.rules}}" target="_new">{% endif %}{{compo.name}}{% if compo.hidden %} (hidden){% endif %}{% if compo.rules %}</a>{% endif %}</td>
+	<td></td>
+	<td>
+		{% if compo.can_submit %}
+			{% if perms.compo.admin or user_has_ticket or not require_ticket %}
+				<a href="{% url compo.views.participate party.slug compo.slug %}">Participate {% if compo.submit_end %}(closes {{compo.submit_end|timeformat}}){% endif %}</a>
+			{% else %}
+				Requires ticket
+			{% endif %}
+		{% else %}
+			{% if compo.submit_passed or not compo.submit_start %}
+				Closed
+			{% else %}
+				Starts {{ compo.submit_start|timeformat }}
+			{% endif %}
+		{% endif %}
+	</td>
+	<td>
+		{% if compo.can_vote %}
+			{% if perms.compo.admin or user_has_ticket or not require_ticket %}
+				{% user_voted compo user voted%}
+				<img src="{{MEDIA_URL}}images/{{ voted|yesno:"icon_success_small.gif,icon_warning_small.gif"}}" alt="You have not voted yet"/>
+				<a href="{% url compo.views.vote party.slug compo.slug %}">Vote {% if compo.vote_end %}(closes {{compo.vote_end|timeformat}}){% endif %}</a>
+			{% else %}
+				Requires ticket
+			{% endif %}
+		{% else %}
+			{% if compo.vote_passed or not compo.vote_start %}
+				Closed
+			{% else %}
+				Starts {{ compo.vote_start|timeformat }}
+			{% endif %}
+		{% endif %}
+	</td>
+	<td>
+		{% if compo.results_public or perms.compo.count_votes %}
+			<a href={% url compo.views.results party.slug compo.slug %}>Results</a>
+		{% endif %}
+	</td>
+	<td>
+		{% if perms.compo.admin %}
+			<a href="{% url compo.views.admin party.slug compo.slug %}">Admin</a>
+		{% endif %}
+	</td>	
+</tr>

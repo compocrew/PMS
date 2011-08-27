@@ -1,0 +1,32 @@
+ 
+{% block content %}
+{% if perms.events.admin %}
+{% if histories %} 
+
+{% load timetags %}
+<table class="schedule_changelog">
+    <tr class="header">
+    <th class="time">Time</th>
+    <th class="event">Event (old name)</th>
+
+    <th class="action">Action</th>
+    <th class="changes">Changes</th>
+    </tr>
+{% for eventhistory in histories %}
+    {% ifchanged eventhistory.time.day eventhistory.time.hour %}
+      <tr class="normal hour-highlight-{% cycle 'odd' 'even' as trclass %}">
+    {% else %}
+      <tr class="normal hour-highlight-{{trclass}}">
+    {% endifchanged %}
+        <td class="time">{{eventhistory.time|time:"l H:i"}}</td>
+        <td class="event">{{eventhistory.name}}</td>
+        <td class="action"> {{eventhistory.action}}</td>
+        <td class="changes"> {{eventhistory.changes}}</td>
+    </tr>
+    {% endfor %}
+</table>
+{% else %}
+<center>No event history</center>
+{% endif %}
+{% endif %}
+{% endblock %}

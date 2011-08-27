@@ -1,0 +1,78 @@
+
+{% block header %}
+<!-- <span id="partylist"><a href="{% url main.views.index %}">[ Change party ]</a></span> -->
+<div class="clear"></div>
+
+<div class="header">
+
+{% block header-party %}
+{% include "party_header.html" %}
+{% endblock %}	
+
+{% block header-bar %}
+	
+	<?#!-- basic status bar. wrap contents in span --?>
+	<div class="roundedCornerCray">
+		<span>
+			{% if user.is_authenticated %}
+				<strong>Logged in</strong> as <a href="{% url accounts.views.user_details %}">{{user.username}}</a>&nbsp;|&nbsp;<a href="{% url accounts.views.logout_user %}">Log out</a>
+			{% else %}
+				<strong>Not logged in</strong>&nbsp;|&nbsp;<a href="{% url login %}?next={{request.path}}">Login</a>&nbsp;|&nbsp;<a href="{% url accounts.views.create_account %}">Create account</a>
+				
+			{% endif %}
+
+		</span>
+		{% if user.is_authenticated %}
+		<span id="inbox">
+			| <a href="{% url messages_inbox %}">Inbox: {% if not messages_inbox_count %}no new messages{% else %}{{messages_inbox_count}} new message{{messages_inbox_count|pluralize}}</strong>{% endif %}</a>
+		</span>
+		{% endif %}
+
+	</div>
+
+{% if party and user.is_authenticated and require_ticket and not user_has_ticket %}
+<div class="roundedCornerOrange">
+<span>
+<a href="{% url accounts.views.tickets party.slug %}">
+<strong>NOTICE:</strong>
+You haven't entered any tickets for this event yet. Click here to do so.
+</a>
+</span>
+</div>
+{% endif %}	
+
+{% block header-navigation %}
+
+	<?#!-- TopBar --?>
+	<div class="menuBar">
+		<div class="menuBarLeft"></div>
+		<div class="menuBarRight"></div>
+		<div class="menuLinks">
+			{% include "navigation.html" %}
+		</div>
+		
+	</div> <!-- topBar -->
+{% endblock %}
+
+{% block messages %}
+	{% if messages %}
+		{% for message in messages %}
+			<div id="message_{{forloop.counter}}" class="statusBar {{message.tags}}"><span><img src="{{MEDIA_URL}}images/icon_{{message.tags}}_small.gif"/>&nbsp;{{message}}</span></div>
+		{% endfor %}
+		{# <script type="application/javascript"> #}
+		{# 	$(document).ready(function() { #}
+		{# 		$("div[id*=message]").click(function () { #}
+		{# 		      $(this).hide("fade", {}, 1000); #}
+		{# 		});	 #}
+		{# 	}); #}
+		{#  #}
+		{# </script> #}
+	{% endif %}
+{% endblock %}
+
+{% endblock %}
+
+	
+</div>
+{% endblock %}
+

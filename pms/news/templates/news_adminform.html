@@ -1,0 +1,7 @@
+{% extends "news_formbase.html" %}
+{% block form_target %}
+{% url news.views.admin article.id %}
+{% endblock %}
+{% block news_form_extra %}
+<div class="link" id="delete_{{article.id}}">Delete</div>
+{% endblock %}

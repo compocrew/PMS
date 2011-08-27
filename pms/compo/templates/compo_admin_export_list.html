@@ -1,0 +1,22 @@
+
+<div>
+	<a href="{% url compo.views.admin_export_xml party.slug compo.slug %}">Export XML</a><br/>
+	<br/>
+	<br/>
+	<span class="sectionName">XSL transform</span>
+	<hr/>
+	<br/>
+	<form method="POST" action="{% url compo.views.admin_export_xsl party.slug compo.slug %}" enctype="multipart/form-data">
+		{% csrf_token %}
+		Select XSL: <input type="file" name="xslpacket"/><br/>
+		Select ODP: <input type="file" name="odppacket"/> (impress export only)<br/>
+		Output type: <select name="output_type"><br/>
+			<option value="txt">txt</option>
+			<option value="diploma">Diplomas</option>
+			<option value="impress">Slides</option>
+		</select>
+		<input type="submit" value="Export"/>
+	</form>
+	
+	
+</div>

@@ -1,0 +1,51 @@
+{% extends "main.html" %}
+
+
+{% block title %}
+	Create Account
+{% endblock %}
+
+{% block sidebar %}
+	
+{% endblock %}
+
+{% block header %}
+	
+{% endblock %}
+
+{% block content %}
+	<span class="sectionName">Create account</span>
+	<hr/>
+	<br/>
+	<center>
+	<div>
+		<form method="POST" action="." id="createaccount">
+			{% csrf_token %}
+			<table>
+			<tbody>
+			{% for field in form %}
+				<tr>
+					<th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
+					<td class="{{field.errors|yesno:"error,"}}">{{ field }}</td>
+					<td>{{field.errors}}</td>
+					<td>{{ field.help_text }}</td>
+				</tr>
+			{% endfor %}
+			{% for field in form2 %}
+				<tr>
+					<th>{{ field.label_tag }}{% if field.field.required %}*{% endif %}</th>
+					<td class="{{field.errors|yesno:"error,"}}">{{ field }}</td>
+					<td>{{field.errors}}</td>
+					<td>{{ field.help_text }}</td>
+				</tr>
+			{% endfor %}
+
+			<tr><td colspan="2"><input type="submit" value="Create account"/></td></tr>
+			<tr><td><strong>*required field</strong></td></tr>
+			</tbody>
+			</table>
+		</form>
+	</div>
+	</center>
+	
+{% endblock %}

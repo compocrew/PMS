@@ -1,0 +1,64 @@
+{% extends "main.html" %}
+{% load thumbnail humanize %}
+{% block title %}
+{{compo.name}} - Results
+{% endblock %}
+{% block sidebar %}
+	
+{% endblock %}
+{% block content %}
+	{% if perms.compo.admin %}		
+		<div class="contentBlock">
+			<span class="sectionName">{{ compo.name }} - Results</span>
+			<hr/>
+			<br/>
+			<div align="center">
+				<table class="entries" id="entries" style="width:70%">
+					<thead>
+					<tr class="lowlight">
+						<th style="width:20px" align="center">#</th>
+						<th style="width:30px">Points</th>
+						<th style="width:125px;">Thumbnail</th>
+						<th style="width:60%">Name</th>
+						<th>Submitter</th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for entry in entries %}
+						<tr class="entry {% cycle 'odd' 'even' %}">
+							<td align="center">{{entry.place|ordinal}}</td>
+							<td>{{entry.points}}</td>
+							<td>{% thumbnail entry.thumbnail "120x90" as im %}<img width="{{im.width}}" height="{{im.height}}" src="{{im.url}}" style="margin:{{im|margin:"120x90"}}"/>{% empty %}<img width="120" height="90" src="{{MEDIA_URL}}images/no_screenshot.jpg"/>{% endthumbnail %}</td>
+							<td>{{entry.name}} by {{entry.credits}}</td>
+							<td>{{entry.submitter.username}} ({{entry.submitter.get_full_name}})<br/>
+								{{entry.submitter.get_profile.phone}}
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			</div>
+		
+			<span class="sectionName">{{ compo.name }} - SMS</span>
+			<hr/>
+			<br/>
+			Winners:<br/>
+			{% for entry in entries %}
+			
+				{% if forloop.counter0 < compo.num_vote_places %}
+					{{forloop.counter}}. {{entry.submitter.username}} ({{entry.submitter.get_full_name}})<br/>
+				{% endif %}
+			{% endfor %}
+			<br/>
+			Numbers:<br/>
+			<ul>
+			{% for entry in entries %}
+				{% if forloop.counter0 < compo.num_vote_places %}
+				 	<li>{{entry.submitter.get_profile.phone}}</li>
+				{% endif %}
+			{% endfor %}
+			</ul>
+		</div>
+	{% endif %}
+
+{% endblock %}

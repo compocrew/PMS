@@ -1,0 +1,67 @@
+{% extends "main.html" %}
+{% load thumbnail humanize %}
+{% block title %}
+{{compo.name}} - Vote
+{% endblock %}
+{% block sidebar %}
+	
+{% endblock %}
+{% block content %}
+	<div class="contentBlock">
+	<span class="sectionName">{{ compo.name }} - Vote</span>
+	<hr/>
+	<br/>
+	<div align="center">
+		<form method="POST" action=".">
+		{% csrf_token %}
+		<table class="entries" id="entries" style="width:70%">
+			<thead>
+			<tr class="lowlight">
+				<th style="width:20px">#</th>
+				<th style="width:125px;">Thumbnail</th>
+				<th></th>
+				<th style="width:20%">Name</th>
+				{% if compo.show_credits %}
+					<th style="width:20%">Credits</th>
+				{% endif %}
+				{% for place in places %}
+					<th style="width:10px">{{place|ordinal}}</th>
+				{% endfor %}
+			</tr>
+			</thead>
+			<tbody>
+			{% for entry in entries %}
+				<tr class="entry {% cycle 'odd' 'even' %}">
+					<td>{{entry.playlist_position}}</td>
+					<td>{% thumbnail entry.thumbnail "120x90" as im %}<img width="{{im.width}}" height="{{im.height}}" src="{{im.url}}" style="margin:{{im|margin:"120x90"}}"/>{% empty %}<img width="120" height="90" src="{{MEDIA_URL}}images/no_screenshot.jpg"/>{% endthumbnail %}</td>
+					<td>
+						{% if entry.preview_link %}
+							<a href="{{entry.preview_link}}" target="_new">Preview</a>
+						{% endif %}
+					</td>
+					<td>{{entry.name}}</td>
+					{% if compo.show_credits %}
+						<td>{{entry.credits}}</td>
+					{% endif %}
+					{% for place in places %}
+						<td class="{% cycle 'even' 'odd' %}"><input type="radio" align="middle" name="place_{{place}}" value="{{entry.id}}" class="{{entry.id}}" {% if entry.voted == place %}checked="checked"{% endif %}/></td>
+					{% endfor %}
+				</tr>
+			{% endfor %}
+			</tbody>
+		</table>
+		<input type="submit" value="submit"/></td>
+		</form>
+	</div>
+{% endblock %}
+{% block javascript %}
+<script type="text/javascript">
+	$(document).ready(function() {
+		$("input:radio").change(function() {
+			var cls = $(this).attr("class");
+			$("input:radio[class="+cls+"]").attr("checked",false);
+			$(this).attr("checked",true);
+		})
+	});
+</script>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends "main.html" %}
+
+{% load thumbnail %}
+
+{% block title %}
+	Edit {{compo.name}}
+{% endblock %}
+
+{% block javascript %}
+{% comment %}
+	
+{% load jsmerge %}
+{% jsmerge admin js/jquery-ui-1.8.4.custom.min.js js/timepicker.js %}
+{% endcomment %}
+<script type="text/javascript" src="{{MEDIA_URL}}js/timepicker.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.tablesorter.min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.form.js"></script>
+{% endblock %}
+{% block sidebar %}
+	
+{% endblock %}
+
+{% block content %}
+	{% if not compo.is_playlist_valid %}
+	<span class="adminAlert">Playlist needs updating!</span><br/>
+	{% endif %}
+	<span class="sectionName">{{compo.name}} - Entries ({% if compo.show_hidden %}{{compo.entries|length}}{% else %}{{compo.count_not_hidden_entries}}{% endif %} total)</span>
+	<hr/>
+	<table class="entries" id="entries">
+		<thead>
+		<tr class="lowlight">
+			<th style="width:20px">id</th>
+			<th style="width:30px">Playlist id</th>
+			<th style="width:120px">Thumbnail</th>
+			<th style="width:20%">Name</th>
+			<th style="width:20%">Credits</th>
+			<th>Submitted</th>
+			<th>Last updated</th>
+			<th>Versions</th>
+			<th>Submitter</th>
+			<th>Status</th>
+			<th>Pts</th>
+			<th>Commands</th>
+		</tr>
+		</thead>
+		<tbody>
+		{% for entry in compo.entries %}
+			{% if not entry.hidden or compo.show_hidden %}
+			<tr class="entry {% cycle 'odd' 'even' %}">
+				<td>{{entry.id}}</td>
+				<td align="center">{% if entry.playlist_position > 0 %}{{entry.playlist_position}}{% else %}{% if entry.is_qualified %}<span class="adminAlert">!</span>{%endif%}{% endif %}</td>
+				<td>{% thumbnail entry.thumbnail "120x90" as im %}<img width="{{im.width}}" height="{{im.height}}" src="{{im.url}}" style="margin:{{im|margin:"120x90"}}"/>{% empty %}<img width="120" height="90" src="{{MEDIA_URL}}images/no_screenshot.jpg"/>{% endthumbnail %}</td>
+				<td>{{entry.name}} {% if entry.hidden %} (hidden){% endif %}</td>
+				<td>{{entry.credits}}</td>
+				<td>{{entry.submittedtime|date:"d.m.Y H:i:s"}}</td>
+				<td>{{entry.updatetime|date:"d.m.Y H:i:s"}}</td>
+				<td align="center">{{entry.versions|length}}</td>
+				<td><a href="{% url accounts.views.admin_user_details entry.submitter.id %}">{{entry.submitter.username}}</a></td>
+				<td>{{entry.get_qualification_status|slice:":1"}}</td>
+				<td> {% if entry.has_juryed %}{{entry.qualification_points|floatformat:2|default:"0.00"}}{% endif %}</td>
+				<td><span class="link" id="download_entry_{{entry.id}}">Download</span>|<span class="link" id="link_edit_entry_{{entry.id}}">Edit</span></td>
+			</tr>
+			{% endif %}
+		{% endfor %}
+		</tbody>
+	</table>
+	<br/>
+	<a href="{% url compo.views.participate party.slug compo.slug %}">[Submit entry]</a>
+	<span class="link" id="link_entrydownload">Download entries</span>
+	<span class="link" id="link_playlist">Edit playlist</span>
+	<a href="{% url compo_jury party.slug compo.slug %}">[Jury]</a>
+	<span class="link" id="link_edit_jury">Edit qualification</span>
+	{% if not compo.show_hidden %}
+		<a href="{% url compo.views.admin party.slug compo.slug %}?hidden=1">[Show hidden]</a>
+	{% else %}
+		<a href="{% url compo.views.admin party.slug compo.slug %}">[Hide hidden]</a>
+	{% endif %}
+	<a href=".">[Refresh]</a>
+	<span class="link" id="compo_export_button">Export</span>
+	{% if compo.results_public or perms.count_votes %}
+	<a href="{% url compo.views.admin_results party.slug compo.slug %}">[Admin results]</a>
+	{% endif %}
+	<br/>
+	<br/>
+	<span class="sectionName">{{compo.name}} - Status</span>
+	<hr/>
+	{% if not compo.is_playlist_valid %}
+	<span class="adminAlert">Playlist needs updating!</span>
+	{% endif %}
+	<br/>
+
+		<p>Submit <span class="{{compo.can_submit|yesno:"active,inactive"}}">{{compo.can_submit|yesno:"OPEN,CLOSED"}}</span></p>
+		<p>Update <span class="{{compo.can_update|yesno:"active,inactive"}}">{{compo.can_update|yesno:"OPEN,CLOSED"}}</span></p>
+		<p>Voting <span class="{{compo.can_vote|yesno:"active,inactive"}}">{{compo.can_vote|yesno:"OPEN,CLOSED"}}</span></p>
+		<p>Entries <span class="{{compo.entries_public|yesno:"active,inactive"}}">{{compo.entries_public|yesno:"PUBLISHED,HIDDEN"}}</span></p>
+		<p>Results <span class="{{compo.results_public|yesno:"active,inactive"}}">{{compo.results_public|yesno:"PUBLISHED,HIDDEN"}}</span></p>
+
+	<br/>
+	<span class="sectionName">{{compo.name}} - Admin</span>
+	<hr/>
+	
+
+	<h5>
+	<form action="." method="POST">
+		{% csrf_token %}
+		<table class="info">
+			<thead>
+			<tr>
+			<td width="20%"></td>
+			<td></td>
+			</tr>
+			</thead>
+			<tbody>
+			{{form.as_table}}
+			<tr><td><input type="submit" value="Update"/></td></tr>
+			</tbody>
+		</table>
+	</form>
+	</h5>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$("#slugsource").change(function() {
+		var s = $(this).val();
+
+		$("#slug").val(s.toLowerCase().replace(" ","_"));
+	});
+	
+	$('.datetime').datetimepicker({
+		dateFormat : 'yy-mm-dd',showOn: 'button', buttonImage: '{{MEDIA_URL}}images/calendar.gif', buttonImageOnly: true,
+	});
+
+	function textExtractor(node) { 
+		if (node.innerHTML.length == 0) { return "999999999"; } else { return node.innerHTML; }
+	}
+	$('#entries').tablesorter({ sortList: [[1,0],[0,0]],headers: { 0: {sorter: 'digit'},1: {sorter: 'digit'}, 2: {sorter: false}, 8: { sorter:false }, 9: { sorter:false },11: { sorter:false },}, textExtraction: textExtractor, widgets: ['zebra']});
+
+	
+	$('#link_playlist').click(function() {
+		var dlg = $('<div><center>Loading...</center></div>').dialog({
+			title : "Edit {{compo.name}} playlist",
+			modal: true,
+			minWidth: 400,
+			buttons: {
+				"Save" : function() { $('#playlistedit').ajaxSubmit({target:dlg}); },
+				"Close" : function() { dlg.dialog('close'); },
+			} 
+		});
+		dlg.load("{% url compo.views.admin_edit_playlist party.slug compo.slug %}",function() {
+			dlg.dialog('open');
+		});
+		
+	});
+	
+	
+	$('#link_edit_jury').click(function() {
+		var dlg = $('<div>Loading...</div>').dialog({
+			title : 'Edit jury status',
+			modal: true,
+			minWidth:700,
+			buttons: {
+				"Save" : function() { $("#juryedit").ajaxSubmit({target:dlg}); },
+				"Close" : function() { dlg.dialog('close'); },
+			} 
+		});
+		dlg.load("{% url compo.views.admin_edit_jury party.slug compo.slug %}",function() {
+			dlg.dialog('open');
+		});
+		
+	});
+	
+	$('#link_entrydownload').click(function() {
+		var dlg = $('<div>Loading...</div>').dialog({
+			title : 'Download entries',
+			modal: true,
+			buttons: {
+				"Close" : function() { dlg.dialog('close'); },
+			} 
+		});
+		
+		dlg.load("{% url compo.views.admin_download_entries party.slug compo.slug %}",function()
+		{
+			dlg.dialog("open");
+		});
+	});
+
+	//compo.views.admin_export party.slug compo.slug
+	$('#compo_export_button').click(function() {
+		var dlg = $('<div><center>Loading...</center></div>').dialog({
+			title : 'Export {{compo.name}}',
+			minWidth: 400,
+			modal: true,
+			buttons: {
+				"Close" : function() { dlg.dialog('close'); },
+			},
+		});
+		
+		dlg.load("{% url compo.views.admin_export_list party.slug compo.slug %}",function() {
+			dlg.dialog("open");
+		});
+		
+	});
+
+	
+	{% for entry in compo.entries %}
+		$("#link_edit_entry_{{entry.id}}").click(function() {
+			var dlg = $('<div><center>Loading...</center></div>').dialog({
+					title: 'Edit entry {{entry.name}}',
+					width: 400,
+					modal: true,
+					buttons: {
+						"Save" : function() { $('#entryupdate').ajaxSubmit({target:dlg}); },
+						"Close" : function() { dlg.dialog('close'); }
+					},
+			});
+			
+			dlg.load("{% url entry.views.admin_edit_entry party.slug entry.id %}",function() {
+				dlg.dialog('open');
+			});
+		});
+		//{% url entry.views.download party.slug entry.id %}"
+		$("#download_entry_{{entry.id}}").click(function() {
+			var dlg = $('<div><center>Loading...</center></div>').dialog({
+					title: 'Download {{entry.name}}',
+					minWidth: 400,
+					modal: true,
+					buttons: {
+						"Close" : function() { dlg.dialog('close'); }
+					},
+			});
+			
+			dlg.load("{% url entry.views.admin_download party.slug entry.id %}",function() {
+				dlg.dialog('open');
+			});
+		});
+	{% endfor %}
+
+
+	
+});
+</script>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends "main.html" %}
+{% load markup %}
+{% block title %}
+	Participate in {{compo.name}}
+{% endblock %}
+
+{% block sidebar %}
+	
+{% endblock %}
+
+{% block content %}
+	{% if compo.description %}
+		<span class="sectionName">{{party.name}} {{compo.name}} competition</span>
+		<hr/>
+		<br/>
+		<div id="compo_description" class="description">
+			{{compo.description|markdown}}
+		</div>
+		<br/>
+	{% endif %}
+	<span class="sectionName">Participate in {{compo.name}}</span>
+	<hr/>
+	<br/>
+	<form action="." method="POST" id="create_entry" enctype="multipart/form-data">
+	{% csrf_token %}
+	{% for hidden in form.hidden_fields %}
+		{{hidden}}
+	{% endfor %}
+	<table class="entries">
+		{% for field in form.visible_fields %}
+			<tr {% if field.errors %}class="error"{%endif%}>
+				<td>{{field.label_tag}}</td><td>{{field}}</td><td>{{field.help_text}}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<br/>
+	<input type="submit" value="submit"/>
+	</form>
+{% endblock %}

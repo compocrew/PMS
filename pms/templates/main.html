@@ -1,0 +1,75 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+{% block mediafiles %}
+	
+{% endblock %}
+{% load mediatags %}
+{% if party and party.css %}
+{% mediafile "css" party.css %}
+{% else %}
+{% mediafile "css" "css/main.css" %}
+{% endif %}
+	
+{% mediafile "css" "css/jquery-ui-1.8.4.custom.css" %}
+
+{% mediafile "js" "js/jquery-1.4.2.min.js" %}
+{% mediafile "js" "js/jquery-ui-1.8.4.custom.min.js" %}
+
+<head>
+<title>{{party.name|default:"PMS"}} - {% block title %}Main{% endblock %}</title>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+{% include_mediafiles "css" %}
+
+{% block css %}
+	
+{% endblock %}
+
+{% include_mediafiles "js" %}
+{% block javascript %}
+{% endblock %}
+{% block head-extra %}
+{% endblock %}
+</head>
+<body>
+
+<div class="pageContainer">
+{% block header %}
+{% include "header.html" %}
+{% endblock %}
+
+
+{% block main-div %}
+
+	
+{% block sidebar %}
+{% include "sidebar.html" %}
+{% endblock %}
+
+
+<div class="mainContent">
+
+{% block content %}
+{% if parties %}
+{% include "list_parties.html" %}
+{% else %}
+{% include "news.html" %}
+{% endif %}
+
+{% endblock %}
+
+</div>
+{% endblock %}
+<div class="clear"></div>
+
+{% block footer %}
+{% include "footer.html" %}
+{% endblock %}
+
+</div>
+{% block script %}
+
+{% endblock %}
+</body>
+
+</html>

@@ -1,0 +1,65 @@
+{% extends "main.html" %}
+
+{% block javascript %}
+{% comment %}
+	
+{% load jsmerge %}
+{% jsmerge admin js/jquery-ui-1.8.4.custom.min.js js/timepicker.js %}
+{% endcomment %}
+<script type="text/javascript" src="{{MEDIA_URL}}js/jquery-ui-1.8.4.custom.min.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/timepicker.js"></script>
+
+{% endblock %}
+
+{% block content %}
+	<h2>Create new compo</h2>
+	<h5>
+		<form action="." method="POST">
+			<table id="list">
+			{% csrf_token %}
+			{% for hidden in form.hidden_fields %}
+				{{hidden}}
+			{% endfor %}
+
+			{% for field in form.visible_fields %}
+				<tr>
+					<td class="fieldName">{{field.label_tag}}</td>
+					
+					{% if field.errors %}
+						<td class="fieldError">
+					{% else %}
+						<td>
+					{% endif %}
+						{{field}}</td>
+						
+					<td>{{field.errors}}</td>
+				</tr>
+				<tr><td></td><td colspan="2">{{field.help_text}}</tr>
+			{% endfor %}
+			<tr><td><input type="submit" value="Create"/></td></tr>
+			</table>
+		</form>
+	</h5>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+$(document).ready(function() {
+	
+	$("#slugsource").change(function() {
+		var s = $(this).val();
+
+		$("#slug").val(s.toLowerCase().replace(" ","_"));
+	});
+	$("#slug").focus(function() {
+		$(':input:eq('+($(':input').index(this)+1)+')').focus();
+	})
+	
+	$('.datetime').datetimepicker({
+		dateFormat : 'yy-mm-dd',showOn: 'button', buttonImage: '{{MEDIA_URL}}images/calendar.gif', buttonImageOnly: true,
+	});
+	
+	$('input:visible:enabled:first').focus();
+});
+</script>
+{% endblock %}

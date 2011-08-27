@@ -1,0 +1,28 @@
+{% extends "main.html" %}
+{% load markup %}
+{% block title %}
+	Participate in {{sport.name}}
+{% endblock %}
+
+{% block content %}
+	<span class="sectionName">{{sport.name}}</span>
+	<hr/><br/>
+	{% if sport.description %}
+	{{sport.description|markdown}}
+		
+	{% else %}
+	<br/>No description.</br><br/>
+	{% endif %}
+	<span class="sectionName">Participate</span>
+	<hr/>
+	<br/>
+	<center>
+	<form method="POST" action="."  enctype="multipart/form-data">
+	{% csrf_token %}
+	<table>
+	{{form.as_table}}
+	</table>
+	<input type="submit" value="Participate"/>
+	</form>
+	</center>
+{% endblock %}

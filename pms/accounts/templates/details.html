@@ -1,0 +1,56 @@
+{% extends "main.html" %}
+
+{% block title %}
+	Account details
+{% endblock %}
+
+{% block sidebar %}
+	
+{% endblock %}
+
+{% block content %}
+	<table>
+	<tr><td><span class="sectionName">Change password</span></td><td><span class="sectionName">My entries</span></td>
+	</tr>
+	<tr>
+	<td valign="top">
+	<hr/>
+	<br/>
+	<form method="POST" action="{% url accounts.views.user_password_change %}">
+		{% csrf_token %}
+		<table class="form">
+			{{passwordform.as_table}}
+			<tr><td></td><td colspan="3"><input type="submit" value="Change password"/></td></tr>
+		</table>
+	</form>
+	<br/>
+	<br/>
+	<span class="sectionName">Details</span>
+	<hr/>
+	<br/>
+	{{form.non_field_errors}}
+	<form action="." method="POST">
+		<table class="list form">
+			{% csrf_token %}
+			{% for field in profileform %}
+				<tr {% if field.errors %}class="error"{% endif %}><td class="label">{% if field.field.required %}<strong>{% endif %}{{field.label_tag}}{% if field.field.required %}*</strong>{% endif %}</td><td>{{field}}<br/>{{field.help_text}}</td>
+			{% endfor %}
+			<tr><td></td><td colspan="3"><input type="submit" value="Update"/></td></tr>
+			<tr><td><b>*required field</b></td></tr>
+			
+		</table>
+	</form>
+	</td>
+	<td valign="top">
+	{% for entry in entries %}
+			{{entry.id}}. {{entry.compo.name}} - {{entry}}
+			{% if entry.compo.can_update %}
+				&nbsp;-&nbsp;<a href="{% url entry.views.upload_entry_version party.slug entry.id %}">Upload new version</a>
+			{% endif %}
+			&nbsp;-&nbsp;{{entry.get_qualification_status}}<br/>
+			<hr/>
+	{% endfor %}
+	</td>
+	</tr>
+	</table>
+{% endblock %}

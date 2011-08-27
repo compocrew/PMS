@@ -1,0 +1,12 @@
+ROOT = '/Users/sivu/code/pms2/pms'
+DB = 'sqlite3'
+DBNAME = 'pms.db'
+DBUSER = ''
+DBPASSWORD = ''
+DBHOST = 'localhost'
+DBPORT = 0
+UPLOAD_DIR = '/tmp/upload/'
+EMAIL_HOST='localhost'
+EMAIL_PORT=25
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+DOWNLOAD_BACKEND = 'filetransfers.backends.default.serve_file'

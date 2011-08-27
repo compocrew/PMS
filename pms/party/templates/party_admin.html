@@ -1,0 +1,10 @@
+
+{% if success %}
+	<div class="success menubar">Party updated</div>
+{% endif %}
+<form action="{% url party.views.admin party.slug %}" method="POST" id="adminform_{{party.slug}}">
+{% csrf_token %}
+<table>
+{{form.as_table}}
+</table>
+</form>

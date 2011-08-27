@@ -1,0 +1,40 @@
+{% load thumbnail %}
+
+{% if success %}
+	<div class="success menubar">{{status}}</div>
+{% endif %}
+
+<form id="playlistedit" method="POST" action="{% url compo.views.admin_edit_playlist party.slug compo.slug %}">
+{% csrf_token %}
+<table id="playlist" class="entries">
+<thead>
+	<tr class="lowlight">
+		<th>#</th>
+		<th>Thumbnail</th>
+		<th>Name</th>
+		<th>Points</th>
+	</tr>
+</thead>
+<tbody>
+{% for entry in entries %}
+	<tr class="playlistentry {% cycle "odd" "even" %}">
+		<td><input size="3" name="entry_{{entry.id}}" type="text" value="{{entry.playlist_position}}"/></td>
+		<td>{% thumbnail entry.thumbnail "120x90" as im %}<img width="{{im.width}}" height="{{im.height}}" src="{{im.url}}" style="margin:{{im|margin:"120x90"}}"/>{% empty %}<img width="120" height="90" src="{{MEDIA_URL}}images/no_screenshot.jpg"/>{% endthumbnail %}</td>
+		<td>{{entry.name}} by {{entry.credits}}</td>
+		<td align="center">{{entry.qualification_points|default:"0"}}</td>
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+</form>
+{% block script %}
+	<script type="text/javascript">
+	$(document).ready(function() {
+	
+		function textExtractor(node) { 
+			if (node.innerHTML.length == 0) { return "999999999.0"; } else { return node.innerHTML; }
+		}
+		$('#playlist').tablesorter({ sortList: [[3,0]],headers: { 0: {sorter: 'digit'},1: {sorter: false}, 2: { sorter:false }, }, textExtraction: textExtractor, widgets: ['zebra']});
+	});
+	</script>
+{% endblock %}

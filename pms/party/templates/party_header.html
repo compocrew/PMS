@@ -1,0 +1,17 @@
+{% if party %}
+<div class="partyheader">
+	<div id="left">
+		{% if party.name_visible %}
+		<a href="{% url main.views.party_index party.slug %}">{{party.name}}</a>
+		{% endif %}
+		{% if party.header_icon %}
+				<a href="{% url main.views.party_index party.slug %}"><img src="{{party.header_icon}}"/></a>
+		{% endif %}
+	</div>
+	<div id="right">
+		<a href="http://paeae.com"><img src="{{MEDIA_URL}}images/paeae-logo.png"/></a>
+	</div>
+	<div class="clear">&nbsp;</div>
+</div>
+{% endif %}
+

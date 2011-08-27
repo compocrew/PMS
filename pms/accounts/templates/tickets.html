@@ -1,0 +1,35 @@
+
+{% extends "main.html" %}
+
+{% block header-content %}
+	
+{% endblock %}
+
+{% block title %}
+	<title>PMS - Login</title>
+{% endblock %}
+{% block sidebar %}
+	
+{% endblock %}
+{% block content %}
+	<span class="sectionName">Your tickets for {{party.name}}</span>
+	<hr/>
+	<br/>
+	<center>		
+	{% for ticket in tickets %}
+		{{ticket.code}} - {{ticket.ticket_type.name}}
+	{% empty %}
+		No tickets.
+	{% endfor %}
+	</center>
+	<br/>
+	<hr/>
+	<br/>
+	<center>
+		<form method="POST" action=".">
+			{% csrf_token %}
+			Enter ticket code: <input type="text" name="code" style="width:30em"/>
+			<input type="submit" value="submit"/>
+		</form>
+	</center>
+{% endblock %}

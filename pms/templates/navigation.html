@@ -1,0 +1,7 @@
+{% if party %}
+{% for section in sections %}
+		<a href="/{{party.slug}}{{section.url}}">{{section.name}}</a>
+{% endfor %}
+{% else %}
+	<a href="/">main</a>
+{% endif %}

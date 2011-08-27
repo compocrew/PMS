@@ -1,0 +1,16 @@
+{% block footer %}
+	<div>&nbsp;</div>
+	<div class="footer">
+		<div class="mainFooterEnd mainFooterLeft"></div>
+		<div class="mainFooterEnd mainFooterRight"></div>
+			<div class="mainFooterSpan">
+				Party Management System v2 &copy; 2010-{% now "Y" %} <a href="http://paeae.fi">Paeae</a>&nbsp;|
+				{% if privacy_link %}
+					<a href="{{privacy_link}}">Privacy</a>&nbsp;|
+				{% endif %}
+				<a href="mailto:pms-adminREMOVETHIS@assembly.org">Bugs, comments?</a>
+				<br/>{% now "r"%}<br />
+			</div>
+	</div> <?#!-- mainFooter --?>
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% load compo_tags %}
+<table id="entries_scoring">
+	<thead>
+		<tr>
+			<th width="30">#</th>
+			<th>Entry</th>
+			{% for member in members %}
+				<th style="margin-left:10px;" align="center">{{member.get_name}}</th>
+			{% endfor %}
+			<th style="margin-left:20px">Score</th>
+		</tr>
+	</thead>
+	<tbody>
+	{% for entry in entries %}
+		<tr id="{{entry.id}}" class="{% cycle "odd" "even" %}">
+			<td width="30" class="juryid">{{forloop.counter}}</td><td style="margin-right: 10px">{{entry.name}} by {{entry.credits}}</td>
+			{% for member in members %}
+				<td align="center" class="{% get_jury_points_class member.id entry.id %}"><input name="points_{{member.id}}_entry_{{entry.id}}" type="text" size="2" maxlength="2" tabindex="{{forloop.counter}}" value="{% get_jury_points member.id entry.id %}"/></td>
+			{% endfor %}
+			<td id="avg_{{entry.id}}">{{entry.qualification_points|floatformat:2|default:"0.00"}}</td>
+		</tr>
+	{% endfor %}
+	</tbody>
+</table>

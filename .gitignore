@@ -1,0 +1,5 @@
+*.pyc
+*.db
+pms/*/migrations/*
+localsettings.py
+.DS_Store

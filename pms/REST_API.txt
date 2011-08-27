@@ -1,0 +1,8 @@
+
+REST urls:
+
+/api/parties/    - list parties
+/api/party/[party.slug]/compos/ - list compos for the party
+/api/party/[party.slug]/compo/[compo.slug]/entries/ - list entries for compo
+/api/party/[party.slug]/compo/[compo.slug]/entry/[entry.id]/ - GET: list entry data - PUT: set preview_link
+

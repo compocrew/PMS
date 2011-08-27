@@ -1,0 +1,60 @@
+<span class="sectionName">List of parties</span>
+<hr/>
+{% for party in parties %}
+	<div>
+		<h2>
+		{% if party.start_date and party.end_date %}
+		{{party.start_date}} - {{party.end_date}}&nbsp;
+		{% endif %}
+		<a href="{% url main.views.party_index party.slug %}">{{party.name}}</a> {% if perms.party.admin %}
+			{% if not party.active %}
+				(not active)
+			{% endif %}
+			<span class="right"><span id="partyAdmin_{{party.slug}}" class="link">Edit</span></span>
+		{% endif %}</h2><br/>
+		<center><a href="{% url main.views.party_index party.slug %}"><img src="{{party.big_icon}}"/></a></center>
+	</div>
+	<hr/>
+{% endfor %}
+
+{% block script %}
+{% if perms.party.admin %}
+	
+	<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.form.js"></script>
+	<script type="text/javascript">
+	$(document).ready(function() {
+		var dialogs = {}
+		
+		{% for party in parties %}
+			var commit = function() {
+				
+			}
+			var dlg = $('<div></div>');
+			dlg.dialog({ 
+					autoOpen:false,
+					width: 420,
+					modal: true,
+					title:'Edit {{party.name}}',
+					buttons : { "Save" : function() { $('#adminform_{{party.slug}}').ajaxSubmit({ target:dlg }); }, "Close" : function() { dlg.dialog('close'); }},
+					
+				});
+/*
+			$('#adminform_{{party.slug}}').submit(function() {
+				$(this).ajaxSubmit({ target : dlg, success: function() { dlg.close(); return false; }});
+				return false;
+			});
+*/
+			$('#partyAdmin_{{party.slug}}').click(function() {
+				dlg.load("{% url party.views.admin party.slug %}",function() { $('input[name*=date]').datepicker({dateFormat: 'yy-mm-dd', showOn: 'button', buttonImage: '{{MEDIA_URL}}images/calendar.gif', buttonImageOnly: true}); })
+				dlg.dialog('open');
+//				$('input[name*=time]').datetimepicker();
+			});
+			
+			
+		{% endfor %}
+
+	});
+	</script>
+{% endif %}
+
+{% endblock %}

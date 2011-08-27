@@ -1,0 +1,51 @@
+{% load thumbnail %}
+
+{% if success %}
+	<div class="success menubar">{{status}}</div>
+{% endif %}
+
+<form id="juryedit" method="POST" action="{% url compo.views.admin_edit_jury party.slug compo.slug %}">
+{% csrf_token %}
+<table id="jurylist" class="entries">
+<thead>
+	<tr class="lowlight">
+		<th>#</th>
+		<th>Thumbnail</th>
+		<th>Name</th>
+		<th>Points</th>
+		<th>Status</th>
+		<th>Disq. reason</th>
+	</tr>
+</thead>
+<tbody>
+{% for entry in entries %}
+	<tr class="playlistentry {% cycle "odd" "even" %}">
+		<td>{{entry.id}}</td>
+		<td>{% thumbnail entry.thumbnail "120x90" as im %}<img width="{{im.width}}" height="{{im.height}}" src="{{im.url}}" style="margin:{{im|margin:"120x90"}}"/>{% empty %}<img width="120" height="90" src="{{MEDIA_URL}}images/no_screenshot.jpg"/>{% endthumbnail %}</td>
+		<td>{{entry.name}} by {{entry.credits}}</td>
+		<td align="center">{{entry.qualification_points|default:"0"|floatformat:"2"}}</td>
+		<td align="center">
+			<select name="entry_{{entry.id}}_status">
+				{% for choice in choices %}
+					<option value="{{choice|first}}" {% if entry.qualification == choice|first %}selected="selected"{% endif %}>{{choice|last}}</option>
+				{% endfor %}
+			</select>
+		</td>
+		<td><input type="text" name="entry_{{entry.id}}_reason" size="50"/></td>
+		
+	</tr>
+{% endfor %}
+</tbody>
+</table>
+</form>
+{% block script %}
+	<script type="text/javascript">
+	$(document).ready(function() {
+	
+		function textExtractor(node) { 
+			if (node.innerHTML.length == 0) { return "999999999.0"; } else { return node.innerHTML; }
+		}
+		$('#jurylist').tablesorter({ sortList: [[0,0]],headers: { 0: {sorter: 'digit'},1: {sorter: false}, 2: { sorter:false }, 4: { sorter:false },5: { sorter:false },}, textExtraction: textExtractor, widgets: ['zebra']});
+	});
+	</script>
+{% endblock %}

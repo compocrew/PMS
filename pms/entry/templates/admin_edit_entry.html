@@ -1,0 +1,25 @@
+
+{% if success %}
+	<div class="success menubar">{{status}}</div>
+{% endif %}
+
+<form action="{% url entry.views.admin_edit_entry party.slug entry.id %}" method="POST" id="entryupdate" enctype="multipart/form-data">
+{% csrf_token %}
+<table>
+{{form.as_table}}
+</table>
+</form>
+<a href="{% url entry.views.upload_entry_version party.slug entry.id %}">Upload new version</a>
+{% block javascript %}
+	<script type="text/javascript">
+		$(document).ready(function() {
+			$('#submitter_search').autocomplete({
+				source: '{% url accounts.views.search_users_json %}',
+				minLength: 2,
+				select: function(event,ui) {
+					$('#submitter').val(ui.item.id);
+				}
+			});
+		})
+	</script>
+{% endblock %}

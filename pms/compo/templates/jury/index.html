@@ -1,0 +1,138 @@
+{% extends "main.html" %}
+{% load compo_tags %}
+
+{% block title %}
+	Admin jury
+{% endblock %}
+
+{% block sidebar %}
+	
+{% endblock %}
+
+{% block javascript %}
+	<script type="application/javascript" src="{{MEDIA_URL}}js/jquery.tablednd_0_5.js"></script>
+	<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.form.js"></script>
+	
+{% endblock %}
+
+{% block content %}
+	<span class="sectionName">jury points for <a href="{% url compo.views.admin party.slug compo.slug %}">{{compo.name}}</a></span>
+	<hr/>
+	<br/>
+	<br/>
+		<form id="jury_points" method="POST" action="{% url compo_jury_update_score party.slug compo.slug %}">
+		{% csrf_token %}
+			<div id="jury_points_table">
+				{% include "jury/jury_points_table.html" %}
+			</div>
+		<input type="submit" value="save scores">	
+		</form>
+	<div id="jury_points_table_status">&nbsp;</div>
+	<br/>
+	<br/>
+	<form id="reorder_entries" method="POST" action="{% url compo_jury_reorder_entries party.slug compo.slug %}">
+	{% csrf_token %}
+		<input type="hidden" name="entry_order" id="entry_order" value="{{compo.jury_order}}">
+		<input id="reorder_entries_submit" type="submit" value="update entry order"/>
+	</form>
+	<div id="reorder_entries_status">&nbsp;</div>
+	<br/>
+	<br/>
+	<span class="sectionName">jury members for {{compo.name}}</span>
+	<hr/>
+	<br/>
+	<br/>
+	<b>Note: If you have entered scores, save first before reordering or adding new member!</b>
+	<br/><br/>
+	Add new member:<br/>
+	<form method="POST" action="{% url compo_jury_add_member party.slug compo.slug %}">
+		{% csrf_token %}
+		{{jurymemberform}}
+		<input type="submit" value="Add member"/>
+	</form>
+	<br/>
+	<br/>
+	Members: (drag to reorder)<br/>
+	<table id="jury_members">
+		<tbody>
+		{% for member in members %}
+			<tr id="{{member.id}}" class="{% cycle "odd" "even" %}"><td width="30"><b>{{forloop.counter}}.</b></td><td width="200">{{member.get_name}}</td><td><a href="{% url compo_jury_delete_member party.slug compo.slug member.id %}">[delete]</a></td></tr>
+		{% endfor %}
+		</tbody>
+	</table>
+	<b>Save scores first before reordering!</b>
+	<form id="reorder_jury" method="POST" action="{% url compo_jury_reorder_members party.slug compo.slug %}">
+		{% csrf_token %}
+		<input type="hidden" id="jury_member_order" name="jury_member_order" value="{{compo.jury_order|default:""}}"/>
+		<input type="submit" value="Update jury order"/>
+	</form>
+	<div id="reorder_jury_status">&nbsp;</div>
+{% endblock %}
+
+
+{% block script %}
+	<script type="application/javascript">
+	
+		$(document).ready(function() {
+			$('#jury_members').tableDnD({
+				onDrop: function(table,row) {
+					var rows = table.tBodies[0].rows;
+					
+					var order = ""
+					for (var i=0;i<rows.length;i++)
+					{
+						var r = $(rows[i]);
+						r.removeClass("odd");
+						r.removeClass("even");
+						r.addClass((i & 1) == 0 ? "odd" : "even");
+						
+						order += rows[i].id;
+						if (i < rows.length-1)
+							order += ",";
+					}
+					$('#jury_member_order').val(order);
+				},
+			});
+			$('#entries_scoring').tableDnD({
+				onDrop: function(table,row) {
+					var rows = table.tBodies[0].rows;
+					
+					var order = ""
+					for (var i=0;i<rows.length;i++)
+					{
+						var r = $(rows[i]);
+						r.removeClass("odd");
+						r.removeClass("even");
+						r.addClass((i & 1) == 0 ? "odd" : "even");
+						
+						order += rows[i].id;
+						if (i < rows.length-1)
+							order += ",";
+					}
+					$('#entry_order').val(order);
+				},
+			});
+
+			$('#reorder_entries').submit(function() {
+				$(this).ajaxSubmit({
+					beforeSubmit: function() {
+						$('#reorder_entries_submit').val("Saving...");
+						$('#reorder_entries_submit').attr("disabled","disabled");
+					},
+					success: function() {
+						$('#reorder_entries_submit').val("Update entry order");
+						$('#reorder_entries_submit').removeAttr("disabled");
+						var i = 1;
+						$('.juryid').each(function(index,e) {
+							$(e).html(i++);
+						});
+					},
+				});
+				return false;
+			});
+
+		});
+	
+	</script>
+{% endblock %}
+

@@ -1,0 +1,65 @@
+{% extends "main.html" %}
+{% block title %}
+Competitions
+{% endblock %}
+{% block content %}
+	<div class="contentBlock">
+		<span class="sectionName">Competitions for {{party.name}}</span>
+		<hr/>
+		<div>
+			<table class="compos">
+				<thead>
+				<!-- <tr class="lowlight">
+					<th style="width:300px">Name</th>
+					<th></th>
+					<th>Participate</th>
+					<th>Vote</th>
+					<th>&nbsp;</th>
+				</tr>
+				</thead>
+				<tbody> -->
+				{% for compo in compos %}
+					{% include "compo_line.html" %}
+				{% endfor %}
+				</tbody>
+				<tr></tr>
+				{% for category in categories %}
+					<tr><td colspan="6"><h2>{{category.name}}</h2></td></tr>
+					<thead>
+					<tr class="header">
+						<th>Name</th>
+						<th></th>
+						<th>Participate</th>
+						<th>Vote</th>
+						<th>&nbsp;</th>
+						<th>&nbsp;</th>
+					</tr>
+					</thead>
+					<tbody>
+					{% for compo in category.compos %}
+						{% include "compo_line.html" %}
+					{% endfor %}
+					</tbody>
+				{% endfor %}
+			</table>
+		</div>
+	</div>
+	{% if perms.compo.admin %}
+		<div class="contentBlock">
+			<div>
+				<span class="sectionName">Admin</span>
+				<hr/>
+				<table class="admin">
+				<tr>
+					<td colspan="1"><a href="{% url compo.views.admin_create_compo party.slug %}">Create new compo</a></td>
+					{# <td><a href="">Create new category</a></td> #}
+					<td><a href="{% url compo.views.admin_export_all_compos party.slug %}">Export compos</a></td>
+					{% if perms.compo.count_votes %}
+						<a href="{% url compo.views.admin_all_results party.slug %}">Admin results</a>
+					{% endif %}
+				</tr>
+				</table>
+			</div>
+		</div>
+	{% endif %}
+{% endblock %}

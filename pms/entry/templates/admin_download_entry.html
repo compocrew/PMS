@@ -1,0 +1,28 @@
+
+<table class="entries">
+<thead>
+	<th align="center">#</th>
+	<th>Submitted</th>
+	<th>Submitter</th>
+	<th>Comments</th>
+	<th>Type</th>
+	<th>Size</th>
+	<th>&nbsp;</th>
+</thead>
+<tbody>
+{% for version in versions %}
+<tr class="{%cycle "odd" "even" %}">
+	<td>{{version.version}}</td>
+	<td>{{version.submittedtime}}</td>
+	<td>{{version.submitter}}</td>
+	<td>{{version.comments|default:""}}</td>
+	<td>{{version.typename}}</td>
+	<td>{% if version.data %}
+		{{version.data.size|filesizeformat}}
+	{% endif %}
+	<td><a href="{% url entry.views.admin_download_version party.slug entry.id version.version %}">[Download]</a></td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+<a href="{% url entry.views.admin_download_version party.slug entry.id 0 %}">[Download all]</a>

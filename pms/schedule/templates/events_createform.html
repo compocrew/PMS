@@ -1,0 +1,5 @@
+{% extends "events_formbase.html" %}
+{% block form_target %}
+{% url schedule.views.create party=party.slug %}
+{% endblock %}
+

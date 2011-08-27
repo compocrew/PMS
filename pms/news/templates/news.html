@@ -1,0 +1,97 @@
+{% load news %}
+{% if party %}
+{% news_articles 5 party.slug %}
+{% else %}
+{% news_articles 5 %}
+{% endif %}
+{% load markup %}
+<div class="contentBlock">
+<div id="news">
+<span class="sectionName">News<span id="news_loading">&nbsp;</span></span>{% if perms.news.admin %}<span class="right"><span class="link" id="postNews">post</span></span>{% endif %}
+<hr/>
+{% if news_items %}
+{% for item in news_items %}
+	{% if perms.news.admin or item.published and not item.is_expired %}
+	<div class="newsItem">
+		<div class="header">
+			<span class="time">{{item.date|date}}<br/>{{item.date|time:"H:i"}}<br/></span>
+			<span class="title {% if perms.news.admin %}link{% endif %}" id="title_{{item.id}}">{{item.headline}} {% if not item.published %}(hidden){% endif %}{% if item.is_expired %}(expired){% endif %}</span><br/><span class="author">by {{item.author}}</span>
+		</div>
+		<div class="article">{{item.content|markdown}}</div>
+	</div>
+	<span class="spacer">
+	<hr/>
+	</span>
+	{% endif %}
+	
+{% endfor %}
+{% else %}
+<center>No news</center>
+{% endif %}
+</div>
+</div>
+{% if perms.news.admin %}
+<script type="text/javascript" src="{{MEDIA_URL}}js/timepicker.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.form.js"></script>
+
+<script type="text/javascript">
+	$(document).ready(function() {
+		var dlg = $('<div></div>');
+		
+		function refresh_news() {
+			$('#news_loading').text("Refreshing...") 
+			$('#news').load('{% url news.views.news %}',function() { $('#news_loading').text(""); }); 
+		}
+		
+		dlg.dialog({
+			autoOpen: false,
+			title: "Make a new post",
+			width: 350,
+			buttons : { 
+				"Post" : function() { $('#newscreate').ajaxSubmit({
+						target: dlg,
+						success:function() {
+							refresh_news();
+						}
+					}); 
+				}, 
+				"Close" : function(){ dlg.dialog('close'); }
+			}
+		});
+		var pickeroptions = { dateFormat: 'yy-mm-dd', timeFormat: 'hh:mm',showOn: 'button', buttonImage: '{{MEDIA_URL}}images/calendar.gif', buttonImageOnly: true};
+
+		{% for item in news_items %}
+			$('#title_{{item.id}}').click(function() {
+				dlg.load('{% url news.views.admin item.id %}',function() { 
+					$('input[name*=time]').datetimepicker(pickeroptions);
+					$('#slugsource').change(function() { 
+						var s = $(this).val();
+						$('#slug').val('{{party.slug|default:"pms"}}-'+s.toLowerCase().replace(" ","_"));
+					});
+					$('#author').val('{{user.username}}');
+					$('#delete_{{item.id}}').click(function() {
+						$('#newsdelete').load('{% url news.views.delete item.id %}',function() { dlg.dialog('close'); refresh_news(); });
+					});
+					
+					dlg.dialog('option','title','Edit post {{item.headline}}')
+					dlg.dialog('open');
+				});
+			
+			});
+		{% endfor %}
+		$('#postNews').click(function() {
+			dlg.load('{% url news.views.create %}',function() { 
+				$('input[name*=time]').datetimepicker(pickeroptions);
+				$('#slugsource').change(function() { 
+					var s = $(this).val();
+					$('#slug').val('{{party.slug|default:"pms"}}-'+s.toLowerCase().replace(" ","_"));
+				});
+				$('#author').val('{{user.username}}');
+
+				dlg.dialog('open');
+			});
+		});
+
+	});
+</script>
+{% endif %}

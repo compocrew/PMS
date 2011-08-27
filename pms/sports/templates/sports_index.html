@@ -1,0 +1,64 @@
+{% extends "main.html" %}
+{% load timetags %}
+{% block title %}
+Sports
+{% endblock %}
+
+{% block content %}
+	<span class="sectionName">Sports / Sponsored competitions</span>
+	<hr/>
+	<br/>
+		{% for category in categories %}
+			{% if category.sports %}
+				<h2>{{category.name}}</h2>
+				<table class="compos">
+					<thead>
+						<tr class="header">
+							<th>Name</th>
+							<th>Participate</th>
+							<th>&nbsp;</th>
+							<th>&nbsp;</th>
+						</tr>
+					</thead>
+					<tbody>
+					{% for sport in category.sports %}
+						<tr class="compo">
+							<td width="40%">
+								{% if sport.link %}<a href="{{sport.link}}" target="_new">{% endif %}{{sport.name}}{% if sport.hidden %}&nbsp;(hidden){% endif %}{% if sport.link %}</a>{% endif %}
+							</td>
+							<td>
+								{% if sport.can_join %}
+									{% if sport.accept_more %}
+										{% if perms.sports.admin or user_has_ticket or not require_ticket %}
+											<a href="{% url sports.views.participate party.slug sport.slug %}">Participate (closes {{sport.join_time_end|timeformat}})</a>
+										{% else %}
+											Needs ticket
+										{% endif %}
+									{% else %}
+										Full
+									{% endif %}
+								{% else %}
+									{% if sport.opens_later %}
+										Closed (opens {{sport.join_time_start|timeformat}})
+									{% else %}
+										Closed
+									{% endif %}
+								{% endif %}
+							</td>
+							<td>
+								{% if sport.finished and sport.has_results %}
+									<a href="{% url sports.views.results party.slug sport.slug %}">Results</a>
+								{% endif %}
+							</td>
+							<td>
+								{% if perms.sports.admin %}
+									<a href="{% url sports.views.sport_admin party.slug sport.slug %}">Admin</a>
+								{% endif %}
+							</td>
+						</tr>
+					{% endfor %}
+					</tbody>
+				</table>
+			{% endif %}
+		{% endfor %}
+{% endblock %}

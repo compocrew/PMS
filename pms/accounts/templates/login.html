@@ -1,0 +1,71 @@
+
+{% extends "main.html" %}
+
+{% block header %}
+	
+{% endblock %}
+
+
+{% block title %}
+	<title>PMS - Login</title>
+{% endblock %}
+{% block sidebar %}
+	
+{% endblock %}
+
+
+{% block content %}
+{% if messages %}
+	{% for message in messages %}
+		<div id="message_{{forloop.counter}}" class="statusBar {{message.tags}}"><span><img src="{{MEDIA_URL}}images/icon_{{message.tags}}_small.gif"/>&nbsp;{{message}}</span></div>
+	{% endfor %}
+	{# <script type="application/javascript"> #}
+	{# 	$(document).ready(function() { #}
+	{# 		$("div[id*=message]").click(function () { #}
+	{# 		      $(this).hide("fade", {}, 1000); #}
+	{# 		});	 #}
+	{# 	}); #}
+	{#  #}
+	{# </script> #}
+{% endif %}
+	<span class="sectionName">login</span>
+	<hr/>
+	<br/>
+	<center>
+	<div class="login">
+		<form method="POST" action="./?next={{next}}">
+			{% csrf_token %}
+			<table>
+			<tr>
+			{% for field in form %}
+				<td>{{ field.label_tag }}</td>
+			{% endfor %}
+			</tr>
+			<tr>
+			{% for field in form %}
+				<td>{{ field }}</td>
+			{% endfor %}
+			</tr>
+
+			<tr><td colspan="2"><input type="submit" value="login"/></td></tr>
+			<tr><td colspan="2"><input type="hidden" name="next" value="{{next}}"/></td></tr>
+			</table>
+		</form>
+	</div>
+	<a href="{% url lost_password %}">Lost password?</a>
+
+	</center>
+	{% comment %}
+		Forgot password? <a href="{% url accounts.views.reset_password %}">reset password</a>
+	{% endcomment %}
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+	 $(document).ready(function() {
+		$('input:visible:enabled:first').focus();
+	});
+
+</script>
+	
+{% endblock %}

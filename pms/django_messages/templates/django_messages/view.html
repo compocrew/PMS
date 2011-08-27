@@ -1,0 +1,18 @@
+{% extends "django_messages/base.html" %} 
+{% load i18n %} 
+{% block content %}
+<span class="sectionName">{% trans "View Message" %}</span>
+<hr/>
+<br/>
+<dl class="message-headers">
+    <dt>{% trans "Subject" %}</dt>
+    <dd><strong>{{ message.subject }}</strong></dd>
+    <dt>{% trans "Sender" %}</dt>
+    <dd>{% if message.sender%}{{ message.sender }}{% else %}PMS{% endif %}</dd>
+    <dt>{% trans "Date" %} </dt>
+    <dd>{{ message.sent_at|date:"d.m.Y H:i"}}</dd>
+</dl>
+{{ message.body|linebreaksbr }}<br /><br />
+
+<a href="{% url messages_inbox %}">{% trans "Back" %}</a>
+{% endblock %}

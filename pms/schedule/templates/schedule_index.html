@@ -1,0 +1,151 @@
+{% extends "main.html" %}
+{% load markup %}
+{% block title %} 
+Schedule 
+{%endblock %} 
+{% block sidebar %} 
+ 
+ {% endblock %}  
+ 
+{% block content %}
+{% if party %} 
+{% load schedule %} 
+    <span class="sectionName">Upcoming events</span>
+    <span id="schedule_loading">&nbsp;</span>{% if perms.event.manage %}<span
+    class="right"><span class="link" id="postSchedule">add</span>&nbsp;<span
+    class="link" id="showHistory">history</span></span>{% endif %}
+<hr/>
+<br/>
+<center>
+<div id="schedule">
+{% if events %}
+
+{% load timetags %}
+<table class="schedule_contents">
+    <tr class="header">
+    <th class="day">&nbsp;</th>
+    <th class="starttime">Start time</th>
+    <th class="endtime">End time</th>
+
+    <th class="event">Event</th>
+    <th class="location">Location</th>
+    </tr>
+{% for event in events %}
+{% if perms.event.admin or not event.hidden %}
+    {% ifchanged %}
+        <tr class="weekday">
+          <td>{{event.time|date:"l d.m."}}</td>
+          <td colspan="4"></td>
+	</tr>
+    {% endifchanged %}
+    {% if event.is_close_to_end %}
+        <tr class="ending">
+    {% else %}
+        {% if event.is_active %}
+            <tr class="ongoing">
+        {% else %}
+            <tr class="normal">
+        {% endif %}
+    {% endif %}
+		<td></td>
+        <td class="starttime">{{event.time|time:"H:i"}}</td>
+        <td class="endtime">{% if event.end_time %}{{event.end_time|time:"H:i"}}{% endif %}</td>
+        <td class="event"><span 
+        class="title {% if perms.event.admin %}link{% endif %}" 
+        id="title_{{event.pk}}">{{event.name|markdown|removetags:"p"|safe}}</span>
+        </td>
+ 
+        <td class="location">{% if event.location_url %}<a href="{{event.location_url}}">{% endif %}{{event.location}}{% if event.location_url %}</a>{% endif %}</td>
+        {% if perms.event.admin and event.hidden %}<td>(hidden)</td> {% endif %}
+    </tr>
+{% endif %}
+    {% endfor %}
+</table>
+{% else %}
+<center>No events</center>
+{% endif %}
+</div>
+</center>
+{% if perms.event.admin %}
+<script type="text/javascript" src="{{MEDIA_URL}}js/timepicker.js"></script>
+<script type="text/javascript" src="{{MEDIA_URL}}js/jquery.form.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() {
+        var dlg = $('<div></div>');
+        
+        function refresh_events() {
+        //    no online refreshing now. page refreshes at dialog close page.
+        //    $('#schedule_loading').text("Refreshing...");
+        //    $('#pageContainer').load('{% url schedule-show party=party.slug%}',function() { $('#schedule_loading').text(""); }); 
+        }
+        dlg.dialog({
+            autoOpen: false,
+            title: "Make a new event",
+            width: 350,
+            buttons : { 
+                "Post" : function() { $('#createEvent').ajaxSubmit({
+                        target: dlg,
+                        success:function() {
+                            refresh_events();
+                        }
+                    }); 
+                }, 
+                "Close" : function(){ dlg.dialog('close');
+                                    window.location = window.location;
+                                    }
+            }
+        });
+        var pickeroptions = { dateFormat: 'yy-mm-dd', timeFormat: 'hh:mm',showOn: 'button', buttonImage: '{{MEDIA_URL}}images/calendar.gif', buttonImageOnly: true};
+        
+        {% for event in events %}
+            $('#title_{{event.pk}}').click(function() {
+                dlg.load('{% url schedule-admin party=party.slug event=event.pk %}',function() { 
+                    $('input[name*=time]').datetimepicker(pickeroptions);
+                    $('input[name*=end_time]').datetimepicker(pickeroptions);
+                    //$('#slugsource').change(function() { 
+                    //    var s = $(this).val();
+                    //    $('#slug').val('{{party.slug|default:"pms"}}-'+s.toLowerCase().replace(" ","_"));
+                    //});
+                    //$('#author').val('{{user.username}}');
+                    $('#delete_{{event.id}}').click(function() {
+                        $('#scheduledelete').load(
+                        '{% url schedule.views.delete party=party.slug event=event.id %}'
+                        ,function() { dlg.dialog('close'); refresh_events(); });
+                    });
+                    
+                    dlg.dialog('option','title','Edit event {{event.name}}')
+                    dlg.dialog('open');
+                });
+            
+            });
+        {% endfor %}
+        $('#postSchedule').click(function() {
+            dlg.load('{% url schedule.views.create party=party.slug %}',function() { 
+                $('input[name*=time]').datetimepicker(pickeroptions);
+                $('input[name*=end_time]').datetimepicker(pickeroptions);
+                //$('#slugsource').change(function() { 
+                //    var s = $(this).val();
+                //    $('#slug').val('{{party.slug|default:"pms"}}-'+s.toLowerCase().replace(" ","_"));
+                //});
+                //$('#author').val('{{user.username}}');
+
+
+                dlg.dialog('open');
+            });
+        });
+        $('#showHistory').click(function() {
+            dlg.load('{% url schedule.views.changelog party=party.slug %}',function() { 
+                dlg.dialog('option','title','Event changelog');
+                dlg.dialog('open');
+                dlg.dialog('option','height', 400);
+            });
+
+        });
+
+    });
+</script>
+
+
+{% endif %}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,36 @@
+{% load markup %}
+<span class="sectionName">Upcoming events</span>
+<br/>
+{% if schedule %}
+</ul>	
+{% load timetags %}
+<table class="schedule">
+	<tr class="header">
+	<th class="start_time">Time</th>
+	<th></th>
+
+	<th class="event">Event</th>
+	<th class="location">Location</th>
+	</tr>
+	<tr><td colspan="4"><hr/></td></tr>
+	{% for event in schedule %}
+	    {% if event.is_close_to_end %}		
+		    <tr class="ending">
+	    {% else %} 
+	        {% if event.is_active %}
+		        <tr class="ongoing">
+	        {% else %}
+	            <tr class="normal">
+	        {% endif %} 
+	    {% endif %}
+				<td class="day">{% ifchanged %}{{event.time|date:"D"}}{% endifchanged %}</td>
+				<td class="starttime">{{event.time|time:"H:i"}}</td>
+				<td class="event">{{event.name|markdown|removetags:"p"|safe}}</td>
+				<td class="location">{% if event.location_url %}<a href="{{event.location_url}}">{% endif %}{{event.location}}{% if event.location_url %}</a>{% endif %}</td>
+		</tr>
+	{% endfor %}
+</table>
+{% else %}
+<br/>
+<center>No events</center>
+{% endif %}
